@@ -31,7 +31,7 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
 
     vals = smap.getValueRaDec(ra, dec)
     uvals = np.unique(vals)
-    colors = list(reversed(pcolors.rainbow(uvals.size)))
+    colors = list(reversed(rainbow(uvals.size)))
 
     xrng = (ra.min(), ra.max())
     yrng = (dec.min(), dec.max())
