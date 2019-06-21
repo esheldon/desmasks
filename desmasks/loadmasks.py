@@ -55,7 +55,7 @@ def read_bleeds(fname, ext='bleedtrail'):
     return data
 
 
-def load_circles(data, expand=1.0):
+def load_circles(*, data, bands, expand=1.0):
     """
     load a set of circle objects from the input data
 
@@ -71,6 +71,10 @@ def load_circles(data, expand=1.0):
     for i in range(data.size):
 
         idata = data[i]
+
+        band = idata['band'].strip()
+        if band not in bands:
+            continue
 
         radius = idata['radius']/3600.0
         radius *= expand
@@ -90,7 +94,7 @@ def load_circles(data, expand=1.0):
     return circles
 
 
-def load_polygons(data):
+def load_polygons(*, data, bands):
     """
     load a set of polygons (rectangles) from the input
     data.  EDGEBLEED is skipped for 'u' and 'Y' bands
@@ -114,6 +118,8 @@ def load_polygons(data):
         idata = data[i]
 
         band = idata['band'].strip()
+        if band not in bands:
+            continue
 
         if band in ['u', 'Y'] and idata['badpix'] == EDGEBLEED:
             print('skipping %s EDGEBLEED' % band)
