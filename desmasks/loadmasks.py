@@ -30,7 +30,7 @@ def read_stars(fname, ext='satstars'):
     return data
 
 
-def read_bleeds(fname, ext='bleedtrail'):
+def read_bleeds(fname, ext='bleedtrail', skipmask=0):
     """
     read bleed masks from a file
 
@@ -40,6 +40,8 @@ def read_bleeds(fname, ext='bleedtrail'):
         File to read
     ext: string, optional
         Extension to read, default 'bleedtrail'
+    skipmask: integer
+        Entries that have these bits set will not be returned
     """
 
     with fitsio.FITS(fname) as fobj:
@@ -49,6 +51,8 @@ def read_bleeds(fname, ext='bleedtrail'):
         (data['ccdnum'] != 31)
         &
         (data['ccdnum'] != 2)
+        &
+        ((data['badpix'] & skipmask) == 0)
     )
 
     data = data[w]
