@@ -6,6 +6,21 @@ import numpy as np
 import colorsys
 
 
+def get_colors():
+    uvals = np.array(
+        [32,  64,  96, 128, 160, 192, 224,
+         256, 288, 320, 352, 384, 448, 480]
+    )
+
+    colors = list(reversed(rainbow(uvals.size)))
+
+    d = {}
+    for i, val in enumerate(uvals):
+        d[val] = colors[i]
+
+    return d
+
+
 def plot_by_val(smap, ra, dec, show=False, **kw):
     """
     plot ra, dec values colored by their value
@@ -15,9 +30,9 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
     smap: HealSparseMap
         A HealSparseMap or object with that interface
     ra: array
-        array of ra values 
+        array of ra values
     dec: array
-        array of dec values 
+        array of dec values
     show: bool
         If True, bring up a plot window.  Default Fals
     **kw:
@@ -31,14 +46,16 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
 
     vals = smap.getValueRaDec(ra, dec)
     uvals = np.unique(vals)
-    colors = list(reversed(rainbow(uvals.size)))
+    print('uvals: %s' % repr(uvals))
+    colors = get_colors()
 
-    xrng = (ra.min(), ra.max())
-    yrng = (dec.min(), dec.max())
+    if 'xrange' not in kw:
+        kw['xrange'] = (ra.min(), ra.max())
+
+    if 'yrange' not in kw:
+        kw['yrange'] = (dec.min(), dec.max())
 
     plt = biggles.FramedPlot(
-        xrange=xrng,
-        yrange=yrng,
         xlabel='RA',
         ylabel='DEC',
         **kw
@@ -48,7 +65,7 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
         if val == 0:
             continue
         w, = np.where(vals == val)
-        color = colors[i]
+        color = colors[val]
         pts = biggles.Points(ra[w], dec[w], type='dot', color=color)
         plt.add(pts)
 
