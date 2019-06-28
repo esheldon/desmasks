@@ -9,7 +9,7 @@ import colorsys
 def get_colors():
     uvals = np.array(
         [32,  64,  96, 128, 160, 192, 224,
-         256, 288, 320, 352, 384, 448, 480]
+         256, 288, 320, 352, 384, 416, 448, 480]
     )
 
     colors = list(reversed(rainbow(uvals.size)))

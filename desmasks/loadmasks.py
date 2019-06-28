@@ -59,6 +59,26 @@ def read_bleeds(fname, ext='bleedtrail', skipmask=0):
     return data
 
 
+def read_tile_geom(*, fname, ext='tilegeom'):
+    """
+    read in the basic tile geometry into an integer map
+    with values 1
+
+    Parameters
+    ----------
+    fname: string
+        File to read
+    ext: string, optional
+        Extension to read, default 'bleedtrail'
+    """
+
+    with fitsio.FITS(fname) as fobj:
+        data = fobj[ext].read(lower=True)
+
+    data = data[0]
+    return data
+
+
 def load_circles(*, data, bands, expand=1.0):
     """
     load a set of circle objects from the input data
