@@ -7,7 +7,7 @@ import fitsio
 import healsparse as hs
 
 
-def read_stars(fname, ext='satstars'):
+def read_stars(*, fname, ext='satstars'):
     """
     read star masks from a file
 
@@ -30,7 +30,7 @@ def read_stars(fname, ext='satstars'):
     return data
 
 
-def read_bleeds(fname, ext='bleedtrail', skipmask=0):
+def read_bleeds(*, fname, ext='bleedtrail', skipmask=0):
     """
     read bleed masks from a file
 
@@ -75,11 +75,10 @@ def read_tile_geom(*, fname, ext='tilegeom'):
     with fitsio.FITS(fname) as fobj:
         data = fobj[ext].read(lower=True)
 
-    data = data[0]
     return data
 
 
-def load_circles(*, data, bands, expand=1.0):
+def load_circles(*, data, values, bands=None, expand=1.0):
     """
     load a set of circle objects from the input data
 
@@ -91,34 +90,40 @@ def load_circles(*, data, bands, expand=1.0):
         Factor by which to expand star masks, default 1
     """
 
+    has_bands = 'band' in data.dtype.names
+    if bands is not None and not has_bands:
+        raise ValueError('bands= sent but no bands present in input data')
+
+    try:
+        nv = len(values)
+    except TypeError:
+        values = [values]*data.size
+
     circles = []
     for i in range(data.size):
 
         idata = data[i]
 
-        band = idata['band'].strip()
-        if band not in bands:
-            continue
+        if bands is not None:
+            band = idata['band'].strip()
+            if band not in bands:
+                continue
 
         radius = idata['radius']/3600.0
         radius *= expand
-        if 'badpix' not in idata:
-            value = 32
-        else:
-            value = idata['badpix']
 
         circle = hs.Circle(
             ra=idata['ra'],
             dec=idata['dec'],
             radius=radius,
-            value=value,
+            value=values[i],
         )
         circles.append(circle)
 
     return circles
 
 
-def load_polygons(*, data, bands):
+def load_polygons(*, data, values, bands=None):
     """
     load a set of polygons (rectangles) from the input
     data.  EDGEBLEED is skipped for 'u' and 'Y' bands
@@ -134,6 +139,10 @@ def load_polygons(*, data, bands):
         badpix
     """
 
+    has_bands = 'band' in data.dtype.names
+    if bands is not None and not has_bands:
+        raise ValueError('bands= sent but no bands present in input data')
+
     EDGEBLEED = 128
 
     polygons = []
@@ -141,14 +150,29 @@ def load_polygons(*, data, bands):
 
         idata = data[i]
 
-        band = idata['band'].strip()
-        if band not in bands:
-            continue
+        if bands is not None:
+            band = idata['band'].strip()
+            if band not in bands:
+                continue
 
-        if band in ['u', 'Y'] and idata['badpix'] == EDGEBLEED:
+        if has_bands and band in ['u', 'Y'] and idata['badpix'] == EDGEBLEED:
             print('skipping %s EDGEBLEED' % band)
             continue
 
+        ra, dec = _extract_vert(idata)
+
+        polygon = hs.Polygon(
+            ra=ra,
+            dec=dec,
+            value=values[i],
+        )
+        polygons.append(polygon)
+
+    return polygons
+
+
+def _extract_vert(idata):
+    if 'ra_1' in idata.dtype.names:
         ra = [
             idata['ra_1'],
             idata['ra_2'],
@@ -161,12 +185,18 @@ def load_polygons(*, data, bands):
             idata['dec_3'],
             idata['dec_4'],
         ]
+    else:
+        ra = [
+            idata['rac1'],
+            idata['rac2'],
+            idata['rac3'],
+            idata['rac4'],
+        ]
+        dec = [
+            idata['decc1'],
+            idata['decc2'],
+            idata['decc3'],
+            idata['decc4'],
+        ]
 
-        polygon = hs.Polygon(
-            ra=ra,
-            dec=dec,
-            value=idata['badpix'],
-        )
-        polygons.append(polygon)
-
-    return polygons
+    return ra, dec
