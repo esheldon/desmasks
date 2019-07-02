@@ -78,6 +78,113 @@ def read_tile_geom(*, fname, ext='tilegeom'):
     return data
 
 
+def get_sn_edge_mask(indata, trim_pixels=100):
+    """
+    add extra boundary mask, used for SN fields
+
+    Parameters
+    ----------
+    trim_pixels: int
+        Number of pixels to trim
+    """
+
+    data = indata[0]
+
+    # ra4, dec4       ra3, dec3
+    #
+    #
+    # ra1, dec1       ra2, dec2
+    fac = 0.263/3600.0
+    off = trim_pixels*fac
+
+    value = 256
+    polys = []
+
+    allra = np.array([
+        data['rac1'],
+        data['rac2'],
+        data['rac3'],
+        data['rac4'],
+    ])
+    alldec = np.array([
+        data['decc1'],
+        data['decc2'],
+        data['decc3'],
+        data['decc4'],
+    ])
+
+    ramin = allra.min()
+    decmin = alldec.min()
+    ramax = allra.max()
+    decmax = alldec.max()
+
+    # left side
+    ra = [
+        ramin,
+        ramin + off,
+        ramin + off,
+        ramin,
+    ]
+    dec = [
+        decmin,
+        decmin,
+        decmax,
+        decmax,
+    ]
+    ply = hs.Polygon(ra=ra, dec=dec, value=value)
+    polys.append(ply)
+
+    # right side
+    ra = [
+        ramax - off,
+        ramax,
+        ramax,
+        ramax - off,
+    ]
+    dec = [
+        decmin,
+        decmin,
+        decmax,
+        decmax,
+    ]
+    ply = hs.Polygon(ra=ra, dec=dec, value=value)
+    polys.append(ply)
+
+    # bottom
+    ra = [
+        ramin,
+        ramax,
+        ramax,
+        ramin,
+    ]
+    dec = [
+        decmin,
+        decmin,
+        decmin + off,
+        decmin + off,
+    ]
+    ply = hs.Polygon(ra=ra, dec=dec, value=value)
+    polys.append(ply)
+
+    # top
+    ra = [
+        ramin,
+        ramax,
+        ramax,
+        ramin,
+    ]
+    dec = [
+        decmax,
+        decmax,
+        decmax - off,
+        decmax - off,
+    ]
+    ply = hs.Polygon(ra=ra, dec=dec, value=value)
+    polys.append(ply)
+
+    return polys
+
+
 def load_circles(*, data, values, bands=None, expand=1.0):
     """
     load a set of circle objects from the input data
