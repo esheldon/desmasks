@@ -78,111 +78,58 @@ def read_tile_geom(*, fname, ext='tilegeom'):
     return data
 
 
-def get_sn_edge_mask(indata, trim_pixels=100):
+def read_imgdata(*, fname, ext='imgdata', bands=None, trim=True):
     """
-    add extra boundary mask, used for SN fields
+    read from the imgdata extension, which holds the polygons
+    representing all ccds that went into coadds
 
     Parameters
     ----------
-    trim_pixels: int
-        Number of pixels to trim
+    fname: string
+        File to read
+    ext: string, optional
+        Extension to read, default 'imgdata'
+    trim: bool
+        If True, trim to intersection of all circles
     """
 
-    data = indata[0]
+    with fitsio.FITS(fname) as fobj:
+        data = fobj[ext].read(lower=True)
 
-    # ra4, dec4       ra3, dec3
-    #
-    #
-    # ra1, dec1       ra2, dec2
-    fac = 0.263/3600.0
-    off = trim_pixels*fac
+    if bands is not None:
+        dbands = np.char.rstrip(data['band'])
+        for i in range(len(bands)):
+            tlogic = dbands == bands[i]
+            if i==0:
+                logic = tlogic
+            else:
+                logic = logic | tlogic
+        w, = np.where(logic)
+        if w.size == 0:
+            raise ValueError('none matched bands %s' % str(bands))
 
-    value = 256
-    polys = []
+        data = data[w]
 
-    allra = np.array([
-        data['rac1'],
-        data['rac2'],
-        data['rac3'],
-        data['rac4'],
-    ])
-    alldec = np.array([
-        data['decc1'],
-        data['decc2'],
-        data['decc3'],
-        data['decc4'],
-    ])
+    if trim:
+        minra = max(data['rac1'].max(), data['rac2'].max())
+        maxra = min(data['rac3'].min(), data['rac4'].min())
 
-    ramin = allra.min()
-    decmin = alldec.min()
-    ramax = allra.max()
-    decmax = alldec.max()
+        mindec = max(data['decc2'].max(), data['decc3'].max())
+        maxdec = min(data['decc1'].min(), data['decc4'].min())
 
-    # left side
-    ra = [
-        ramin,
-        ramin + off,
-        ramin + off,
-        ramin,
-    ]
-    dec = [
-        decmin,
-        decmin,
-        decmax,
-        decmax,
-    ]
-    ply = hs.Polygon(ra=ra, dec=dec, value=value)
-    polys.append(ply)
+        odata = data
+        data = data[0:0+1]
+        data['rac1'] = minra
+        data['rac2'] = minra
+        data['rac3'] = maxra
+        data['rac4'] = maxra
 
-    # right side
-    ra = [
-        ramax - off,
-        ramax,
-        ramax,
-        ramax - off,
-    ]
-    dec = [
-        decmin,
-        decmin,
-        decmax,
-        decmax,
-    ]
-    ply = hs.Polygon(ra=ra, dec=dec, value=value)
-    polys.append(ply)
+        data['decc1'] = maxdec
+        data['decc2'] = mindec
+        data['decc3'] = mindec
+        data['decc4'] = maxdec
 
-    # bottom
-    ra = [
-        ramin,
-        ramax,
-        ramax,
-        ramin,
-    ]
-    dec = [
-        decmin,
-        decmin,
-        decmin + off,
-        decmin + off,
-    ]
-    ply = hs.Polygon(ra=ra, dec=dec, value=value)
-    polys.append(ply)
-
-    # top
-    ra = [
-        ramin,
-        ramax,
-        ramax,
-        ramin,
-    ]
-    dec = [
-        decmax,
-        decmax,
-        decmax - off,
-        decmax - off,
-    ]
-    ply = hs.Polygon(ra=ra, dec=dec, value=value)
-    polys.append(ply)
-
-    return polys
+    return data
 
 
 def load_circles(*, data, values, bands=None, expand=1.0):
@@ -247,6 +194,7 @@ def load_polygons(*, data, values, bands=None):
     """
 
     has_bands = 'band' in data.dtype.names
+    has_badpix = 'badpix' in data.dtype.names
     if bands is not None and not has_bands:
         raise ValueError('bands= sent but no bands present in input data')
 
@@ -257,12 +205,16 @@ def load_polygons(*, data, values, bands=None):
 
         idata = data[i]
 
-        if bands is not None:
+        if has_bands and bands is not None:
             band = idata['band'].strip()
             if band not in bands:
                 continue
 
-        if has_bands and band in ['u', 'Y'] and idata['badpix'] == EDGEBLEED:
+        if (has_bands and
+                has_badpix and
+                band in ['u', 'Y'] and
+                idata['badpix'] == EDGEBLEED):
+
             print('skipping %s EDGEBLEED' % band)
             continue
 

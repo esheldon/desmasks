@@ -21,7 +21,7 @@ def get_colors():
     return d
 
 
-def plot_by_val(smap, ra, dec, show=False, **kw):
+def plot_by_val(smap, ra, dec, show=False, use_rainbow=False, **kw):
     """
     plot ra, dec values colored by their value
 
@@ -47,7 +47,13 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
     vals = smap.getValueRaDec(ra, dec)
     uvals = np.unique(vals)
     print('uvals: %s' % repr(uvals))
-    colors = get_colors()
+    if use_rainbow:
+        if uvals.size == 1:
+            colors = ['orange']
+        else:
+            colors = rainbow(uvals.size)
+    else:
+        colors = get_colors()
 
     if 'xrange' not in kw:
         kw['xrange'] = (ra.min(), ra.max())
@@ -65,7 +71,12 @@ def plot_by_val(smap, ra, dec, show=False, **kw):
         if val == 0:
             continue
         w, = np.where(vals == val)
-        color = colors[val]
+
+        if use_rainbow:
+            color = colors[i]
+        else:
+            color = colors[val]
+
         pts = biggles.Points(ra[w], dec[w], type='dot', color=color)
         plt.add(pts)
 
