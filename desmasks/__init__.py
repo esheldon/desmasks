@@ -1,3 +1,8 @@
+from . import masks
+from .masks import (
+    load_mask,
+    TileMask,
+)
 from . import loadmasks
 from .loadmasks import (
     read_stars,
