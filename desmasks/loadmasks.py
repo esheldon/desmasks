@@ -100,7 +100,7 @@ def read_imgdata(*, fname, ext='imgdata', bands=None, trim=True):
         dbands = np.char.rstrip(data['band'])
         for i in range(len(bands)):
             tlogic = dbands == bands[i]
-            if i==0:
+            if i == 0:
                 logic = tlogic
             else:
                 logic = logic | tlogic
@@ -117,7 +117,6 @@ def read_imgdata(*, fname, ext='imgdata', bands=None, trim=True):
         mindec = max(data['decc2'].max(), data['decc3'].max())
         maxdec = min(data['decc1'].min(), data['decc4'].min())
 
-        odata = data
         data = data[0:0+1]
         data['rac1'] = minra
         data['rac2'] = minra
@@ -128,6 +127,44 @@ def read_imgdata(*, fname, ext='imgdata', bands=None, trim=True):
         data['decc2'] = mindec
         data['decc3'] = mindec
         data['decc4'] = maxdec
+
+    return data
+
+
+def get_trimmed_tile_geom(indata, trim_pixels=100):
+    """
+    add extra boundary mask, used for COSMOS
+
+    Parameters
+    ----------
+    trim_pixels: int
+        Number of pixels to trim, default 100
+    """
+
+    data = indata.copy()
+
+    fac = 0.263/3600.0
+    off = trim_pixels*fac
+
+    import biggles
+    colors = ['red', 'magenta', 'green', 'blue']
+    plt = biggles.FramedPlot()
+    plt.add(biggles.Point(data['rac1'][0], data['decc1'][0], color=colors[0]))
+    plt.add(biggles.Point(data['rac2'][0], data['decc2'][0], color=colors[1]))
+    plt.add(biggles.Point(data['rac3'][0], data['decc3'][0], color=colors[2]))
+    plt.add(biggles.Point(data['rac4'][0], data['decc4'][0], color=colors[3]))
+    plt.show()
+
+
+    data['rac1'] -= off
+    data['rac2'] += off
+    data['rac3'] += off
+    data['rac4'] -= off
+
+    data['decc1'] += off
+    data['decc2'] += off
+    data['decc3'] -= off
+    data['decc4'] -= off
 
     return data
 
@@ -148,10 +185,7 @@ def load_circles(*, data, values, bands=None, expand=1.0):
     if bands is not None and not has_bands:
         raise ValueError('bands= sent but no bands present in input data')
 
-    try:
-        nv = len(values)
-    except TypeError:
-        values = [values]*data.size
+    values = _extract_values(values, data.size)
 
     circles = []
     for i in range(data.size):
@@ -192,6 +226,8 @@ def load_polygons(*, data, values, bands=None):
         ra_4, dec_4
         badpix
     """
+
+    values = _extract_values(values, data.size)
 
     has_bands = 'band' in data.dtype.names
     has_badpix = 'badpix' in data.dtype.names
@@ -259,3 +295,15 @@ def _extract_vert(idata):
         ]
 
     return ra, dec
+
+
+def _extract_values(values, n):
+    try:
+        nv = len(values)
+        if nv != n:
+            raise ValueError('values must be scalar or length '
+                             'of data, got %d instead of %d' % (nv, n))
+    except TypeError:
+        values = [values]*n
+
+    return values

@@ -6,6 +6,7 @@ from .loadmasks import (
     read_imgdata,
     load_circles,
     load_polygons,
+    get_trimmed_tile_geom,
 )
 from . import plotting
 from .plotting import plot_by_val
