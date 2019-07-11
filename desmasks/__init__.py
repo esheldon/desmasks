@@ -1,6 +1,6 @@
 from . import masks
 from .masks import (
-    load_mask,
+    load_tile_mask,
     TileMask,
 )
 from . import loadmasks

@@ -2,14 +2,14 @@ from __future__ import print_function
 from . import files
 
 
-def load_mask(tilename=None):
+def load_tile_mask(tilename=None):
 
     mask_fname = files.get_mask_file(tilename)
     bounds_fname = files.get_bounds_file(tilename)
 
     print('loading mask from:', mask_fname)
     print('loading bounds from:', bounds_fname)
-    return Mask(mask_fname=mask_fname, bounds_fname=bounds_fname)
+    return TileMask(mask_fname=mask_fname, bounds_fname=bounds_fname)
 
 
 class TileMask(object):
