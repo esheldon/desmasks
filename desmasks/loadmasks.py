@@ -146,16 +146,6 @@ def get_trimmed_tile_geom(indata, trim_pixels=100):
     fac = 0.263/3600.0
     off = trim_pixels*fac
 
-    import biggles
-    colors = ['red', 'magenta', 'green', 'blue']
-    plt = biggles.FramedPlot()
-    plt.add(biggles.Point(data['rac1'][0], data['decc1'][0], color=colors[0]))
-    plt.add(biggles.Point(data['rac2'][0], data['decc2'][0], color=colors[1]))
-    plt.add(biggles.Point(data['rac3'][0], data['decc3'][0], color=colors[2]))
-    plt.add(biggles.Point(data['rac4'][0], data['decc4'][0], color=colors[3]))
-    plt.show()
-
-
     data['rac1'] -= off
     data['rac2'] += off
     data['rac3'] += off
