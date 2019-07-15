@@ -13,5 +13,9 @@ from .loadmasks import (
     load_polygons,
     get_trimmed_tile_geom,
 )
+
+from . import loadreg
+from .loadreg import load_regions
+
 from . import plotting
-from .plotting import plot_by_val
+from .plotting import plot_by_val, plotrand

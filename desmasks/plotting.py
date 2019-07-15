@@ -3,6 +3,8 @@ load the geom from fits tables
 """
 
 import numpy as np
+import healsparse as hs
+import healpy as hp
 import colorsys
 
 
@@ -21,7 +23,7 @@ def get_colors():
     return d
 
 
-def plot_by_val(smap, ra, dec, show=False, use_rainbow=False, **kw):
+def plot_by_val(smap, ra, dec, use_rainbow=False, show=False, **kw):
     """
     plot ra, dec values colored by their value
 
@@ -33,6 +35,9 @@ def plot_by_val(smap, ra, dec, show=False, use_rainbow=False, **kw):
         array of ra values
     dec: array
         array of dec values
+    use_rainbow: bool
+        If set, use a simple rainbow color scheme rather than
+        pre-defined colors for each value
     show: bool
         If True, bring up a plot window.  Default Fals
     **kw:
@@ -43,6 +48,8 @@ def plot_by_val(smap, ra, dec, show=False, use_rainbow=False, **kw):
     biggles plot object
     """
     import biggles
+
+    size = kw.pop('size', 1)
 
     vals = smap.getValueRaDec(ra, dec)
     uvals = np.unique(vals)
@@ -77,11 +84,90 @@ def plot_by_val(smap, ra, dec, show=False, use_rainbow=False, **kw):
         else:
             color = colors[val]
 
-        pts = biggles.Points(ra[w], dec[w], type='dot', color=color)
+        pts = biggles.Points(ra[w], dec[w], type='dot', size=size, color=color)
         plt.add(pts)
 
     if show:
         plt.show()
+
+    return plt
+
+
+def plotrand(smap,
+             nrand,
+             randpix=False,
+             by_val=False,
+             show=False,
+             use_rainbow=False,
+             rng=None,
+             **kw):
+    """
+    plot random ra, dec from the map
+
+
+    Parameters
+    ----------
+    smap: HealSparseMap
+        A HealSparseMap or object with that interface
+    nrand: int
+        number of random points to show
+    rng: numpy RandomState
+        For generating random points
+    by_val: bool
+        If set, plot by value in the map; keywords are passed
+        on to the plot_by_val function
+    show: bool
+        If True, bring up a plot window.  Default Fals
+    **kw:
+        other keywords for the FramedPlot
+
+    Returns
+    -------
+    biggles plot object
+    """
+    import biggles
+
+    if randpix:
+        if rng is None:
+            rng = np.random.RandomState()
+
+        vpix = smap.validPixels
+        if vpix.size > nrand:
+            isub = rng.randint(0, vpix.size, size=nrand)
+            sub = vpix[isub]
+        else:
+            sub = vpix
+
+        ra, dec = hp.pix2ang(smap.nsideSparse, sub, nest=True, lonlat=True)
+
+    else:
+        ra, dec = hs.makeUniformRandomsFast(smap, nrand, rng=rng)
+
+    if by_val:
+        plt = plot_by_val(
+            smap, ra, dec,
+            show=show, use_rainbow=use_rainbow, **kw
+        )
+    else:
+
+        size = kw.pop('size', 1)
+        if 'xrange' not in kw:
+            kw['xrange'] = (ra.min(), ra.max())
+
+        if 'yrange' not in kw:
+            kw['yrange'] = (dec.min(), dec.max())
+
+        plt = biggles.FramedPlot(
+            xlabel='RA',
+            ylabel='DEC',
+            **kw
+        )
+
+        pts = biggles.Points(ra, dec, type='dot', size=size, color='blue')
+        plt.add(pts)
+
+        if show:
+            plt.show()
 
     return plt
 
