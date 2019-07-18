@@ -45,3 +45,9 @@ class TileMask(object):
 
         is_masked = self.is_masked(ra, dec)
         return ~is_masked
+
+    def get_mask_flags(self, ra, dec):
+        """
+        get mask values (not from bounds)
+        """
+        return self._mask_map.getValueRaDec(ra, dec)
