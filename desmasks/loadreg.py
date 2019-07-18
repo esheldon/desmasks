@@ -10,7 +10,7 @@ STAR = 32
 TRAIL = 64
 
 
-def load_regions(fname, doplot=False, **kw):
+def load_regions(fname, doplot=False, verbose=False, **kw):
     """
     load circles and polygons from a converted ds9 region file
 
@@ -40,11 +40,12 @@ def load_regions(fname, doplot=False, **kw):
             else:
                 continue
 
-    for circle in circles:
-        print('circle:', circle)
+    if verbose:
+        for circle in circles:
+            print('circle:', circle)
 
-    for polygon in polygons:
-        print('polygon:', polygon)
+        for polygon in polygons:
+            print('polygon:', polygon)
 
     allgeom = circles + polygons
 
