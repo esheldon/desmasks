@@ -143,6 +143,9 @@ def plotrand(smap,
     else:
         ra, dec = hs.makeUniformRandomsFast(smap, nrand, rng=rng)
 
+    if 'aspect_ratio' not in kw:
+        kw['aspect_ratio'] = (dec.max()-dec.min())/(ra.max()-ra.min())
+
     if by_val:
         plt = plot_by_val(
             smap, ra, dec,
