@@ -2,9 +2,9 @@ from __future__ import print_function
 from . import files
 
 
-def load_tile_mask(tilename=None):
+def load_tile_mask(tilename=None, with_uvista=False):
 
-    mask_fname = files.get_mask_file(tilename)
+    mask_fname = files.get_mask_file(tilename, with_uvista=with_uvista)
     bounds_fname = files.get_bounds_file(tilename)
 
     print('loading mask from:', mask_fname)

@@ -25,7 +25,7 @@ def get_mask_dir():
     )
 
 
-def get_mask_file(tilename_full, with_ultravista=False):
+def get_mask_file(tilename_full, with_uvista=False):
     """
     get the mask file name.
 
@@ -41,7 +41,7 @@ def get_mask_file(tilename_full, with_ultravista=False):
     mask_tilename = _extract_mask_tilename(tilename_full)
 
     fname = os.path.join(d, '%s-griz-healsparse.fits' % mask_tilename)
-    if with_ultravista:
+    if with_uvista:
         assert 'COSMOS' in tilename_full, \
             'ultravista is only in COSMOS'
 
