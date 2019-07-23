@@ -3,6 +3,12 @@ from .masks import (
     load_tile_mask,
     TileMask,
 )
+from . import objmasks
+from .objmasks import (
+    ObjMask,
+    load_tile_objmask,
+)
+
 from . import loadmasks
 from .loadmasks import (
     read_stars,

@@ -65,3 +65,22 @@ def get_bounds_file(tilename_full):
     mask_tilename = _extract_mask_tilename(tilename_full)
 
     return os.path.join(d, '%s-griz-bounds-healsparse.fits' % mask_tilename)
+
+
+def get_objmask_file(tilename_full):
+    """
+    get the object mask file for SN* tiles
+
+    Parameters
+    ----------
+    tilename_tull: string
+        e.g. SN-C3_C10_r3688p01
+    """
+    meds_dir = os.path.join(
+        os.environ['MEDS_DIR'],
+        tilename_full,
+    )
+
+    fname = '%s_comb_meds-VIDEO_DEEPmaskedobj.txt'
+
+    return os.path.join(meds_dir, fname)
