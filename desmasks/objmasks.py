@@ -1,15 +1,6 @@
 from __future__ import print_function
 import numpy as np
 import esutil as eu
-from . import files
-
-
-def load_tile_objmask(tilename):
-
-    fname = files.get_objmask_file(tilename)
-
-    print('loading objmask from:', fname)
-    return ObjMask(fname)
 
 
 class ObjMask(object):
