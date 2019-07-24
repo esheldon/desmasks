@@ -21,12 +21,17 @@ class ObjMask(object):
         self._load_mask()
 
     def _load_mask(self):
+        """
+        load the unique ids from the file
+        """
 
         data = np.fromfile(self._fname, dtype='i8', sep=' ')
-        nrows = data.size//2
 
+        nrows = data.size//2
         data = data.reshape((nrows, 2))
-        self.objids = data[:, 1]
+
+        all_objids = data[:, 1]
+        self.objids = np.unique(all_objids)
 
     def is_masked(self, objids):
         """
@@ -34,6 +39,7 @@ class ObjMask(object):
         """
 
         is_masked = np.zeros(objids.size, dtype='bool')
+
         minput, mdata = eu.numpy_util.match(objids, self.objids)
         is_masked[minput] = True
 
@@ -53,6 +59,7 @@ class ObjMask(object):
         mask_flags = np.zeros(objids.size, dtype='i4')
         is_masked = self.is_masked(objids)
 
+        # use the TRAIL bit, most are trails
         mask_flags[is_masked] = 64
 
         return mask_flags
