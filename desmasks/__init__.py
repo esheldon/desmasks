@@ -4,10 +4,7 @@ from .masks import (
     TileMask,
 )
 from . import objmasks
-from .objmasks import (
-    ObjMask,
-    load_tile_objmask,
-)
+from .objmasks import ObjMask
 
 from . import loadmasks
 from .loadmasks import (
