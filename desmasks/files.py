@@ -81,6 +81,6 @@ def get_objmask_file(tilename_full):
         tilename_full,
     )
 
-    fname = '%s_comb_meds-VIDEO_DEEPmaskedobj.txt'
+    fname = '%s_comb_meds-VIDEO_DEEPmaskedobj.txt' % tilename_full
 
     return os.path.join(meds_dir, fname)

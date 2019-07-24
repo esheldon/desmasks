@@ -59,7 +59,7 @@ class ObjMask(object):
         mask_flags = np.zeros(objids.size, dtype='i4')
         is_masked = self.is_masked(objids)
 
-        # use the TRAIL bit, most are trails
-        mask_flags[is_masked] = 64
+        # larger than anything in the des bitmask
+        mask_flags[is_masked] = 2**15
 
         return mask_flags
