@@ -51,7 +51,7 @@ def plot_by_val(smap, ra, dec, use_rainbow=False, show=False, **kw):
 
     size = kw.pop('size', 1)
 
-    vals = smap.getValueRaDec(ra, dec)
+    vals = smap.get_values_pos(ra, dec)
     uvals = np.unique(vals)
     print('uvals: %s' % repr(uvals))
     if use_rainbow:
@@ -131,17 +131,17 @@ def plotrand(smap,
         if rng is None:
             rng = np.random.RandomState()
 
-        vpix = smap.validPixels
+        vpix = smap.valid_pixels
         if vpix.size > nrand:
             isub = rng.randint(0, vpix.size, size=nrand)
             sub = vpix[isub]
         else:
             sub = vpix
 
-        ra, dec = hp.pix2ang(smap.nsideSparse, sub, nest=True, lonlat=True)
+        ra, dec = hp.pix2ang(smap.nside_sparse, sub, nest=True, lonlat=True)
 
     else:
-        ra, dec = hs.makeUniformRandomsFast(smap, nrand, rng=rng)
+        ra, dec = hs.make_uniform_randoms_fast(smap, nrand, rng=rng)
 
     if 'aspect_ratio' not in kw:
         kw['aspect_ratio'] = (dec.max()-dec.min())/(ra.max()-ra.min())
