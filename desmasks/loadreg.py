@@ -53,9 +53,9 @@ def load_regions(fname, doplot=False, verbose=False, **kw):
         from .plotting import plotrand
 
         nside = 2**17
-        smap = hs.HealSparseMap.makeEmpty(
-            nsideCoverage=32,
-            nsideSparse=nside,
+        smap = hs.HealSparseMap.make_empty(
+            nside_coverage=32,
+            nside_sparse=nside,
             dtype=np.int16,
             sentinel=0,
         )

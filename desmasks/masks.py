@@ -31,8 +31,8 @@ class TileMask(object):
         check if the input positions are masked
         """
 
-        mask_values = self._mask_map.getValueRaDec(ra, dec)
-        bounds_values = self._bounds_map.getValueRaDec(ra, dec)
+        mask_values = self._mask_map.get_values_pos(ra, dec)
+        bounds_values = self._bounds_map.get_values_pos(ra, dec)
 
         return (
             (mask_values > 0) | (bounds_values == 0)
@@ -50,4 +50,4 @@ class TileMask(object):
         """
         get mask values (not from bounds)
         """
-        return self._mask_map.getValueRaDec(ra, dec)
+        return self._mask_map.get_values_pos(ra, dec)
