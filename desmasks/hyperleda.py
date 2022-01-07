@@ -42,11 +42,9 @@ def _make_map(data, radius_factor):
     hmap = healsparse.HealSparseMap.make_empty(
         nside_coverage=32,
         nside_sparse=2**14,
-        # nside_sparse=2**16,
         dtype=np.int16,
         sentinel=0,
     )
-    # hmap = healsparse.HealSparseMap.make_empty(32, 16384, np.int16, sentinel=0)
     healsparse.realize_geom(circles, hmap)
     return hmap
 
@@ -74,24 +72,3 @@ def _read_hyperleda_catalog(fname):
     output['radius_degrees'] = radius_degrees
 
     return output
-
-
-def get_args():
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', required=True, help='input hyperleda file')
-    parser.add_argument('--output', required=True,
-                        help='output healsparse map file')
-    parser.add_argument('--nside', type=int, default=16384)
-    parser.add_argument('--radius-factor', type=float, default=4)
-    return parser.parse_args()
-
-
-if __name__ == '__main__':
-    args = get_args()
-    main(
-        fname=args.input,
-        output=args.output,
-        nside=args.nside,
-        radius_factor=args.radius_factor,
-    )

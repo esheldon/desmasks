@@ -224,7 +224,7 @@ def load_polygons(*, data, values, bands=None):
     if bands is not None and not has_bands:
         raise ValueError('bands= sent but no bands present in input data')
 
-    EDGEBLEED = 128
+    edgebleed = 128
 
     polygons = []
     for i in range(data.size):
@@ -239,9 +239,9 @@ def load_polygons(*, data, values, bands=None):
         if (has_bands and
                 has_badpix and
                 band in ['u', 'Y'] and
-                idata['badpix'] == EDGEBLEED):
+                idata['badpix'] == edgebleed):
 
-            print('skipping %s EDGEBLEED' % band)
+            print('skipping %s edgebleed' % band)
             continue
 
         ra, dec = _extract_vert(idata)
