@@ -1,3 +1,7 @@
+# flake8: noqa
+
+__version__ = '0.2.0'
+
 from . import masks
 from .masks import (
     load_tile_mask,
@@ -22,3 +26,5 @@ from .loadreg import load_regions
 
 from . import plotting
 from .plotting import plot_by_val, plotrand
+
+from . import hyperleda

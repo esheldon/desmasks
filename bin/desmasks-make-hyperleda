@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+
+def main(args):
+    import desmasks
+    desmasks.hyperleda.make_hyperleda_map(
+        fname=args.input,
+        output=args.output,
+        nside=args.nside,
+        radius_factor=args.radius_factor,
+    )
+
+
+def get_args():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', required=True, help='input hyperleda file')
+    parser.add_argument('--output', required=True,
+                        help='output healsparse map file')
+    parser.add_argument('--nside', type=int, default=16384)
+    parser.add_argument('--radius-factor', type=float, default=4)
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    args = get_args()
+    main(args)
